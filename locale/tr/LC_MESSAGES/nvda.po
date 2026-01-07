@@ -1,0 +1,42 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: continuous_clock 9.9\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.8\n"
+
+msgid "Continuous Clock"
+msgstr "Sürekli Saat"
+
+msgid "Continuous Clock Settings..."
+msgstr "Sürekli Saat Ayarları..."
+
+msgid "Continuous Clock Settings"
+msgstr "Sürekli Saat Ayarları"
+
+msgid "Time: {current_time}"
+msgstr "Saat: {current_time}"
+
+msgid "Announces the current time manually."
+msgstr "Saati manuel olarak seslendirir."
+
+msgid "Announcement interval (1-60 minutes):"
+msgstr "Anons aralığı (1-60 dakika):"
+
+msgid "Play ticking sound every minute"
+msgstr "Her dakika başında tık sesi çıkar"
+
+msgid "Website"
+msgstr "Web Sitesi"
+
+msgid "Donate (PayTR)"
+msgstr "Bağış Yap (PayTR)"
+
+msgid "Clock settings updated."
+msgstr "Saat ayarları güncellendi."

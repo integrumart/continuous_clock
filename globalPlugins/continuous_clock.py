@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+# Continuous Clock for NVDA
+# Version: 1.0
+# Author: Volkan Ozdemir Software Services
+
 import threading
 import time
 import wx
@@ -9,87 +14,87 @@ import tones
 import webbrowser
 import scriptHandler
 
-# Çeviri desteğini başlat
+# Initialize translation support
 addonHandler.initTranslation()
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
-    # Girdi hareketleri (Kısayollar) için kategori adı
+    # Category name for Input Gestures
     scriptCategory = _("Continuous Clock")
 
     def __init__(self):
         super(GlobalPlugin, self).__init__()
-        # Varsayılan Değerler
+        # Default Values
         self.interval = 10
-        self.enable_ticking = True
-        self.is_running = True
+        self.enableTicking = True # enable_ticking -> enableTicking
+        self.isRunning = True # is_running -> isRunning
         
-        # NVDA Araçlar menüsüne öğe ekle
-        self.menu_item = gui.mainFrame.sysTrayIcon.menu.Append(wx.ID_ANY, _("Continuous Clock Settings..."))
-        gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.on_settings, self.menu_item)
+        # Add item to NVDA Tools menu
+        self.menuItem = gui.mainFrame.sysTrayIcon.menu.Append(wx.ID_ANY, _("Continuous Clock Settings..."))
+        gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onSettings, self.menuItem)
         
-        # Zamanlayıcıyı arka planda (Thread) başlat
-        self._timer_thread = threading.Thread(target=self._clock_loop)
-        self._timer_thread.daemon = True
-        self._timer_thread.start()
+        # Start timer thread
+        self._timerThread = threading.Thread(target=self._clockLoop)
+        self._timerThread.daemon = True
+        self._timerThread.start()
 
-    def _clock_loop(self):
-        """Arka planda saniyeyi izleyen ana döngü."""
-        last_minute = -1
-        while self.is_running:
+    def _clockLoop(self): # _clock_loop -> _clockLoop
+        """Main loop that monitors time in the background."""
+        lastMinute = -1
+        while self.isRunning:
             now = time.localtime()
-            # Her dakikanın tam başında (0. saniyede) tetiklenir
-            if now.tm_min != last_minute and now.tm_sec == 0:
-                last_minute = now.tm_min
-                # Belirlenen periyotta saati söyle
-                if last_minute % self.interval == 0:
-                    self.announce_time()
-                # Her dakika başında 'tık' sesi ver
-                if self.enable_ticking:
+            # Triggered at the beginning of every minute (0th second)
+            if now.tm_min != lastMinute and now.tm_sec == 0:
+                lastMinute = now.tm_min
+                # Announce time at determined interval
+                if lastMinute % self.interval == 0:
+                    self.announceTime()
+                # Play 'tick' sound every minute if enabled
+                if self.enableTicking:
                     tones.beep(880, 40)
             time.sleep(1)
 
-    def announce_time(self):
-        """Saati duyuran fonksiyon."""
-        current_time = time.strftime("%H:%M")
-        ui.message(_("Time: {current_time}").format(current_time=current_time))
+    def announceTime(self): # announce_time -> announceTime
+        """Function that announces the time."""
+        currentTime = time.strftime("%H:%M")
+        ui.message(_("Time: {currentTime}").format(currentTime=currentTime))
 
-    # Girdi Hareketleri üzerinden atanabilir kısayol komutu
+    # Assignable shortcut command via Input Gestures
     def script_announceCurrentTime(self, gesture):
-        self.announce_time()
+        self.announceTime()
     script_announceCurrentTime.__doc__ = _("Announces the current time manually.")
 
-    def on_settings(self, evt):
-        """Ayarlar diyaloğunu açar."""
+    def onSettings(self, evt): # on_settings -> onSettings
+        """Opens the settings dialog."""
         dlg = ClockSettingsDialog(gui.mainFrame, self)
         dlg.ShowModal()
 
     def terminate(self):
-        """Eklenti devre dışı kaldığında döngüyü durdur ve menüyü temizle."""
-        self.is_running = False
+        """Stop loop and clean menu when add-on is disabled."""
+        self.isRunning = False
         try:
-            gui.mainFrame.sysTrayIcon.menu.Remove(self.menu_item)
+            gui.mainFrame.sysTrayIcon.menu.Remove(self.menuItem)
         except:
             pass
 
 class ClockSettingsDialog(wx.Dialog):
-    """Eklenti ayarlarının yapıldığı görsel arayüz."""
+    """Interface for add-on settings."""
     def __init__(self, parent, plugin):
         super(ClockSettingsDialog, self).__init__(parent, title=_("Continuous Clock Settings"))
         self.plugin = plugin
         
         mainSizer = wx.BoxSizer(wx.VERTICAL)
         
-        # Periyot Ayarı
+        # Interval Setting
         mainSizer.Add(wx.StaticText(self, label=_("Announcement interval (1-60 minutes):")), 0, wx.ALL, 5)
         self.intervalSpin = wx.SpinCtrl(self, value=str(self.plugin.interval), min=1, max=60)
         mainSizer.Add(self.intervalSpin, 0, wx.EXPAND | wx.ALL, 5)
         
-        # Tıklama Sesi Onayı
+        # Ticking Sound Checkbox
         self.tickCheck = wx.CheckBox(self, label=_("Play ticking sound every minute"))
-        self.tickCheck.SetValue(self.plugin.enable_ticking)
+        self.tickCheck.SetValue(self.plugin.enableTicking)
         mainSizer.Add(self.tickCheck, 0, wx.ALL, 5)
 
-        # Buton Satırı (Web sitesi ve Bağış)
+        # Button Row (Website and Donate)
         btnSizerRow = wx.BoxSizer(wx.HORIZONTAL)
         
         self.webBtn = wx.Button(self, label=_("Website"))
@@ -97,22 +102,22 @@ class ClockSettingsDialog(wx.Dialog):
         btnSizerRow.Add(self.webBtn, 1, wx.ALL, 5)
 
         self.donateBtn = wx.Button(self, label=_("Donate (PayTR)"))
-        self.donateBtn.Bind(wx.EVT_BUTTON, lambda e: webbrowser.open("https://www.paytr.com/link/N2IAQKm_"))
+        self.donateBtn.Bind(wx.EVT_BUTTON, lambda e: webbrowser.open("https://www.paytr.com/link/N2IAQKm"))
         btnSizerRow.Add(self.donateBtn, 1, wx.ALL, 5)
         
         mainSizer.Add(btnSizerRow, 0, wx.EXPAND)
         
-        # Standart Tamam / İptal Butonları
+        # Standard OK / Cancel Buttons
         buttonSizer = self.CreateButtonSizer(wx.OK | wx.CANCEL)
         mainSizer.Add(buttonSizer, 0, wx.ALIGN_CENTER | wx.ALL, 10)
         
         self.SetSizer(mainSizer)
         mainSizer.Fit(self)
-        self.Bind(wx.EVT_BUTTON, self.on_ok, id=wx.ID_OK)
+        self.Bind(wx.EVT_BUTTON, self.onOk, id=wx.ID_OK) # on_ok -> onOk
 
-    def on_ok(self, evt):
-        # Ayarları kaydet ve kapat
+    def onOk(self, evt): # camelCase
+        # Save settings and close
         self.plugin.interval = self.intervalSpin.GetValue()
-        self.plugin.enable_ticking = self.tickCheck.GetValue()
+        self.plugin.enableTicking = self.tickCheck.GetValue()
         ui.message(_("Clock settings updated."))
         self.Destroy()
